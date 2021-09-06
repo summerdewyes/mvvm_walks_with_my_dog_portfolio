@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.summerdewyes.mvvm_walks_with_my_dog">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".BaseApplication"
@@ -24,17 +24,20 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+
         </activity>
+
+        <!--github용 구글 맵 API Key-->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
+        <!--구글 맵 API를 위한 구글 플레이 서비스 버전 번호 -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
     </application>
-
-    <!--github용 구글 맵 API Key-->
-    <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="${MAPS_API_KEY}" />
-
-    <!--구글 맵 API를 위한 구글 플레이 서비스 버전 번호 -->
-    <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
 
 </manifest>

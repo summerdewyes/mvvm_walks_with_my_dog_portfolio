@@ -4,10 +4,7 @@ plugins {
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
-    /*
-
     id 'androidx.navigation.safeargs.kotlin'
-    id 'dagger.hilt.android.plugin'*/
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 }
