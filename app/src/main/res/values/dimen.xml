@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="bottom_height">56sp</dimen>
+
+    <!--Margin-->
+    <dimen name="margin_default_div">8sp</dimen>
+    <dimen name="margin_default">16sp</dimen>
+    <dimen name="margin_default_mul">32sp</dimen>
+
+    <!--Content-->
+    <dimen name="content_size">16sp</dimen>
+    <dimen name="medium_content_size">24sp</dimen>
+    <dimen name="large_content_size">40sp</dimen>
+
+    <!--cardView-->
+    <dimen name="cardView_size">120sp</dimen>
+    <dimen name="cardView_corner_radius">60sp</dimen>
+
+
+</resources>

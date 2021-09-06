@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">mvvm_walks_with_my_dog</string>
+
+    <string-array name="filter_options">
+        <item>날짜</item>
+        <item>시간</item>
+        <item>거리</item>
+        <item>평균 스피드</item>
+        <item>칼로리</item>
+    </string-array>
+
+    <string name="start_text">시작</string>
+    <string name="stop_text">중지</string>
+
+    <string name="what_your_dog_name">강아지에 대해 알려주세요 !</string>
+    <string name="what_name">이름이 무엇인가요?</string>
+    <string name="what_kg">몇 kg인가요?</string>
+    <string name="save">등록</string>
+    <string name="update">수정</string>
 </resources>
