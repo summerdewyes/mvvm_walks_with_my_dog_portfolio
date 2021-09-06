@@ -24,11 +24,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-
         </activity>
 
-        <!--github용 구글 맵 API Key-->
+        <service
+            android:name=".services.TrackingService"
+            android:foregroundServiceType="location"/>
+
+        <!--구글 맵 API Key-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
