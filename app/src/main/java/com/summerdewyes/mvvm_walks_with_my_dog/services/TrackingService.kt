@@ -34,8 +34,13 @@ import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.LOCATION_UPDATE_I
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.NOTIFICATION_CHANNEL_ID
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.NOTIFICATION_CHANNEL_NAME
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.NOTIFICATION_ID
+import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.TIMER_UPDATE_INTERVAL
 import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.MainActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 //Top level 변수
@@ -48,7 +53,10 @@ class TrackingService : LifecycleService() {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
+    private val timeRunInSeconds = MutableLiveData<Long>()
+
     companion object {
+        val timeRunInMillis = MutableLiveData<Long>()
         val isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
     }
@@ -56,6 +64,8 @@ class TrackingService : LifecycleService() {
     private fun postInitialValues() {
         isTracking.postValue(false)
         pathPoints.postValue(mutableListOf()) // mutableListOf()는 읽기, 쓰기가 가능합니다.
+        timeRunInSeconds.postValue(0L)
+        timeRunInMillis.postValue(0L)
     }
 
     override fun onCreate() {
@@ -63,7 +73,9 @@ class TrackingService : LifecycleService() {
         postInitialValues() //isTracking=false, pathPoints=mutableListOf() 초기화
         fusedLocationProviderClient = FusedLocationProviderClient(this)
 
-        // isTracking을 관찰하여 값이 TRUE이고 위치 퍼미션이 켜져 있으면 위치 업데이트를 요청합니다. 아니라면 업데이트를 중지합니다.
+        /**
+         * isTracking을 관찰하여 값이 TRUE이고 위치 퍼미션이 켜져 있으면 위치 업데이트를 요청합니다. 아니라면 업데이트를 중지합니다.
+         */
         isTracking.observe(this, {
             updateLocationTracking(it)
         })
@@ -79,11 +91,13 @@ class TrackingService : LifecycleService() {
                         isFirstRun = false
                     } else {
                         Timber.d("서비스중..")
+                        startTimer()
                     }
                     Timber.d("서비스 시작")
                 }
                 ACTION_PAUSE_SERVICE -> {
                     Timber.d("서비스 일시정지")
+                    pauseService() // 일시정지일 때 isTracking = FALSE
                 }
                 ACTION_STOP_SERVICE -> {
                     Timber.d("서비스 중지")
@@ -92,6 +106,44 @@ class TrackingService : LifecycleService() {
         }
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private var isTimerEnabled = false
+    private var lapTime = 0L
+    private var timeRun = 0L
+    private var timeStarted = 0L
+    private var lastSecondTimestamp = 0L
+
+    /**
+     * 타이머
+     */
+    private fun startTimer() {
+        addEmptyPolyline() // 서비스가 시작되면 pathPoints에 Polylines를 담습니다. null이라면 mutableListOf()를 return 합니다.
+        isTracking.postValue(true)
+        timeStarted = System.currentTimeMillis()
+        isTimerEnabled = true
+        CoroutineScope(Dispatchers.Main).launch {
+            while (isTracking.value!!){
+                // time difference between now and timeStarted
+                lapTime = System.currentTimeMillis() - timeStarted
+
+                // post the new lapTime
+                timeRunInMillis.postValue(timeRun + lapTime)
+
+                //1550ms >= 1000ms++
+                if (timeRunInMillis.value!! >= lastSecondTimestamp + 1000L){
+                    timeRunInSeconds.postValue(timeRunInSeconds.value!! + 1)
+                    lastSecondTimestamp += 1000L
+                }
+                delay(TIMER_UPDATE_INTERVAL)
+            }
+            timeRun += lapTime
+        }
+    }
+
+    private fun pauseService(){
+        isTracking.postValue(false)
+        isTimerEnabled = false
     }
 
 
@@ -116,7 +168,9 @@ class TrackingService : LifecycleService() {
     }
 
 
-    // isTracking이 TRUE일 때  -> addPathPoint
+    /**
+     *  isTracking이 TRUE일 때  -> addPathPoint
+     */
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             super.onLocationResult(result)
@@ -131,7 +185,9 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    //pathPoints에 현재 위치를 담습니다.
+    /**
+     *  pathPoints의 마지막에 현재 위치를 담습니다.
+     */
     private fun addPathPoint(location: Location?) {
         location?.let {
             val pos = LatLng(location.latitude, location.latitude)
@@ -149,8 +205,11 @@ class TrackingService : LifecycleService() {
     } ?: pathPoints.postValue(mutableListOf(mutableListOf()))
 
 
+    /**
+     * 서비스가 시작되면...
+     */
     private fun startForegroundService() {
-        addEmptyPolyline() // 서비스가 시작되면 pathPoints에 Polylines를 담습니다. null이라면 mutableListOf()를 return 합니다.
+        startTimer()
         isTracking.postValue(true) //서비스가 시작되면 isTracking은 TRUE가 됩니다.
 
         val notificationManager =

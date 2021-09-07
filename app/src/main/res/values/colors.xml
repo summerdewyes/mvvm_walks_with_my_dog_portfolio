@@ -10,4 +10,14 @@
     <color name="colorPrimaryDark">#fafafa</color>
     <color name="colorAccent">#feb544</color>
     <color name="errorColor">#ea3728</color>
+
+    <!--mute-->
+    <color name="grey_100">#F5F5F5</color>
+    <color name="grey_300">#E0E0E0</color>
+    <color name="grey_500">#9E9E9E</color>
+
+    <!--theme-->
+    <color name="theme_yellow">#feb544</color>
+    <color name="theme_light_yellow">#fee4b3</color>
+    <color name="theme_light_blue">#c0d3d9</color>
 </resources>
