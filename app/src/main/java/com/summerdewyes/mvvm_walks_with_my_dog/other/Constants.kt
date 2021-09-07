@@ -20,8 +20,8 @@ object Constants {
     const val FASTEST_LOCATION_INTERVAL = 2000L
 
     const val POLYLINE_COLOR = R.color.theme_light_blue
-    const val POLYLINE_WIDTH = 15F
-    const val MAP_ZOOM = 18F
+    const val POLYLINE_WIDTH = 8F
+    const val MAP_ZOOM = 15F
 
     const val NOTIFICATION_CHANNEL_ID = "tracking_channel"
     const val NOTIFICATION_CHANNEL_NAME = "Tracking"
