@@ -37,23 +37,33 @@ import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.NOTIFICATION_ID
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.TIMER_UPDATE_INTERVAL
 import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 //Top level 변수
 typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
 
+@AndroidEntryPoint
 class TrackingService : LifecycleService() {
 
     var isFirstRun = true
 
+    @Inject
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private val timeRunInSeconds = MutableLiveData<Long>()
+
+
+    @Inject
+    lateinit var baseNotificationBuilder: NotificationCompat.Builder // 기본 알림
+
+    lateinit var curNotificationBuilder: NotificationCompat.Builder // 현재 알림
 
     companion object {
         val timeRunInMillis = MutableLiveData<Long>()
@@ -70,6 +80,7 @@ class TrackingService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        curNotificationBuilder = baseNotificationBuilder
         postInitialValues() //isTracking=false, pathPoints=mutableListOf() 초기화
         fusedLocationProviderClient = FusedLocationProviderClient(this)
 
@@ -78,6 +89,7 @@ class TrackingService : LifecycleService() {
          */
         isTracking.observe(this, {
             updateLocationTracking(it)
+            updateNotificationTrackingState(it)
         })
 
     }
@@ -123,7 +135,7 @@ class TrackingService : LifecycleService() {
         timeStarted = System.currentTimeMillis()
         isTimerEnabled = true
         CoroutineScope(Dispatchers.Main).launch {
-            while (isTracking.value!!){
+            while (isTracking.value!!) {
                 // time difference between now and timeStarted
                 lapTime = System.currentTimeMillis() - timeStarted
 
@@ -131,7 +143,7 @@ class TrackingService : LifecycleService() {
                 timeRunInMillis.postValue(timeRun + lapTime)
 
                 //1550ms >= 1000ms++
-                if (timeRunInMillis.value!! >= lastSecondTimestamp + 1000L){
+                if (timeRunInMillis.value!! >= lastSecondTimestamp + 1000L) {
                     timeRunInSeconds.postValue(timeRunInSeconds.value!! + 1)
                     lastSecondTimestamp += 1000L
                 }
@@ -141,9 +153,38 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    private fun pauseService(){
+    private fun pauseService() {
         isTracking.postValue(false)
         isTimerEnabled = false
+    }
+
+    /**
+     * isTracking에 따라서 알림 UI가 업데이트 됩니다.
+     */
+    private fun updateNotificationTrackingState(isTracking: Boolean) {
+        val notificationActionText = if(isTracking) "일시정지" else "재시작"
+        val pendingIntent = if(isTracking) {
+            val pauseIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_PAUSE_SERVICE
+            }
+            PendingIntent.getService(this, 1, pauseIntent, FLAG_UPDATE_CURRENT)
+        } else {
+            val resumeIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_START_OR_RESUME_SERVICE
+            }
+            PendingIntent.getService(this, 2, resumeIntent, FLAG_UPDATE_CURRENT)
+        }
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        curNotificationBuilder.javaClass.getDeclaredField("mActions").apply {
+            isAccessible = true
+            set(curNotificationBuilder, ArrayList<NotificationCompat.Action>())
+        }
+
+        curNotificationBuilder = baseNotificationBuilder
+            .addAction(R.drawable.ic_add_black, notificationActionText, pendingIntent)
+        notificationManager.notify(NOTIFICATION_ID, curNotificationBuilder.build())
     }
 
 
@@ -219,26 +260,14 @@ class TrackingService : LifecycleService() {
             createNotificationChannel(notificationManager)
         }
 
+        startForeground(NOTIFICATION_ID, baseNotificationBuilder.build()) //서비스가 시작될 때 알림을 띄웁니다.
 
-        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setAutoCancel(false)
-            .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("어야가자")
-            .setContentText("00:00:00")
-            .setContentIntent(getMainActivityPendingIntent())
-
-        startForeground(NOTIFICATION_ID, notificationBuilder.build()) //서비스가 시작될 때 알림을 띄웁니다.
+        timeRunInSeconds.observe(this, {
+            val notification = curNotificationBuilder
+                .setContentText(TrackingUtility.getFormattedStopWatchTime(it * 1000L))
+            notificationManager.notify(NOTIFICATION_ID, notification.build())
+        })
     }
-
-    private fun getMainActivityPendingIntent() = PendingIntent.getActivity(
-        this,
-        0,
-        Intent(this, MainActivity::class.java).also { Intent ->
-            Intent.action = ACTION_SHOW_TRACKING_FRAGMENT
-        },
-        FLAG_UPDATE_CURRENT
-    )
 
     //알림 채널 생성
     @RequiresApi(Build.VERSION_CODES.O)
