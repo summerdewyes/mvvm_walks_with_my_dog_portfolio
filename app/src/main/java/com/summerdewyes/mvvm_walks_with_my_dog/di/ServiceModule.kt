@@ -47,7 +47,7 @@ object ServiceModule {
     ) = NotificationCompat.Builder(app, Constants.NOTIFICATION_CHANNEL_ID)
         .setAutoCancel(false)
         .setOngoing(true)
-        .setSmallIcon(R.drawable.paw_theme)
+        .setSmallIcon(R.drawable.ic_paw_theme)
         .setContentTitle("어야가자")
         .setContentText("00:00:00")
         .setContentIntent(pendingIntent)

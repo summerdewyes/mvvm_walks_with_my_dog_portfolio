@@ -2,15 +2,18 @@ package com.summerdewyes.mvvm_walks_with_my_dog.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_PAUSE_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_START_OR_RESUME_SERVICE
+import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_STOP_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.MAP_ZOOM
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.POLYLINE_COLOR
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.POLYLINE_WIDTH
@@ -20,6 +23,7 @@ import com.summerdewyes.mvvm_walks_with_my_dog.services.TrackingService
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tracking.*
+import timber.log.Timber
 
 @AndroidEntryPoint
 class TrackingFragment : Fragment(R.layout.fragment_tracking) {
@@ -39,6 +43,10 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
         btnToggleRun.setOnClickListener {
             toggleRun()
+        }
+
+        miCancelTracking.setOnClickListener {
+            showCancelTrackingDialog()
         }
 
         mapView.getMapAsync { googleMap ->
@@ -72,10 +80,32 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
      */
     private fun toggleRun() {
         if (isTracking) {
+            miCancelTracking.visibility = View.VISIBLE
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
         }
+    }
+
+    /**
+     * 산책 중지 다이어로그
+     */
+    private fun showCancelTrackingDialog() {
+        val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+            .setTitle("산책을 그만할까요?")
+            .setMessage("산책을 그만두고 모든 데이터를 삭제하시겠습니까?")
+            .setPositiveButton("네") { _, _ ->
+                stopRun()
+            }
+            .setNegativeButton("아니요") { dialogInterface, _ ->
+                dialogInterface.cancel()
+            }.create()
+        dialog.show()
+    }
+
+    private fun stopRun(){
+        sendCommandToService(ACTION_STOP_SERVICE)
+        findNavController().navigate(R.id.action_trackingFragment_to_runFragment)
     }
 
     /**
@@ -88,6 +118,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             btnFinishRun.visibility = View.GONE
         } else {
             btnToggleRunTxt.text = "시작"
+            miCancelTracking.visibility = View.VISIBLE
             btnFinishRun.visibility = View.VISIBLE
         }
     }
