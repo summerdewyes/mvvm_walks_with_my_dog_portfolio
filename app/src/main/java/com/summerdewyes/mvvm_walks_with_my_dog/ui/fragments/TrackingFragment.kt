@@ -8,9 +8,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.summerdewyes.mvvm_walks_with_my_dog.R
+import com.summerdewyes.mvvm_walks_with_my_dog.db.Run
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_PAUSE_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_STOP_SERVICE
@@ -24,6 +27,8 @@ import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tracking.*
 import timber.log.Timber
+import java.util.*
+import kotlin.math.round
 
 @AndroidEntryPoint
 class TrackingFragment : Fragment(R.layout.fragment_tracking) {
@@ -37,9 +42,16 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     private var curTimeInMillis = 0L
 
+    private var weight = 80f
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView.onCreate(savedInstanceState)
+
+        btnFinishRun.setOnClickListener {
+            zoomToSeeWholeTrack()
+            endRunAndSaveToDb()
+        }
 
         btnToggleRun.setOnClickListener {
             toggleRun()
@@ -103,7 +115,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         dialog.show()
     }
 
-    private fun stopRun(){
+    private fun stopRun() {
         sendCommandToService(ACTION_STOP_SERVICE)
         findNavController().navigate(R.id.action_trackingFragment_to_runFragment)
     }
@@ -134,6 +146,51 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
                     MAP_ZOOM
                 )
             )
+        }
+    }
+
+    /**
+     * 경로의 모든 부분을 보여주도록 합니다.
+     */
+    private fun zoomToSeeWholeTrack() {
+        val bounds = LatLngBounds.Builder()
+        for (polyline in pathPoints) {
+            for (pos in polyline) {
+                bounds.include(pos)
+            }
+        }
+        map?.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                bounds.build(),
+                mapView.width,
+                mapView.height,
+                (mapView.height * 0.05f).toInt()
+            )
+        )
+    }
+
+    /**
+     * 산책 기록을 데이터베이스에 저장합니다.
+     */
+    private fun endRunAndSaveToDb() {
+        map?.snapshot { bmp ->
+            var distanceInMeters = 0
+            for (polyline in pathPoints) {
+                distanceInMeters += TrackingUtility.calculatePolylineLength(polyline).toInt()
+            }
+            val avgSpeed =
+                round((distanceInMeters / 1000f) / (curTimeInMillis / 1000f / 60 / 60) * 10) / 10f
+            val dataTimestamp = Calendar.getInstance().timeInMillis
+            val caloriesBurned = ((distanceInMeters / 1000f) * weight).toInt()
+            val run =
+                Run(bmp, dataTimestamp, avgSpeed, distanceInMeters, curTimeInMillis, caloriesBurned)
+            viewModel.insertRun(run)
+            Snackbar.make(
+                requireActivity().findViewById(R.id.rootView),
+                "저장했습니다 :)",
+                Snackbar.LENGTH_LONG
+            ).show()
+            stopRun()
         }
     }
 
