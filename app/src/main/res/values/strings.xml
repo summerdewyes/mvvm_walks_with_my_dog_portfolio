@@ -15,6 +15,6 @@
     <string name="what_your_dog_name">강아지에 대해 알려주세요 !</string>
     <string name="what_name">이름이 무엇인가요?</string>
     <string name="what_kg">몇 kg인가요?</string>
-    <string name="save">등록</string>
+    <string name="save">저장</string>
     <string name="update">수정</string>
 </resources>

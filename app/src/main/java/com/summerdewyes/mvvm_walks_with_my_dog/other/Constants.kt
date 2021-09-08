@@ -4,6 +4,7 @@ import android.graphics.Color
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 
 object Constants {
+    const val MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey"
 
     const val RUNNING_DATABASE_NAME = "running_db"
 
@@ -16,12 +17,17 @@ object Constants {
 
     const val TIMER_UPDATE_INTERVAL = 50L
 
+    const val SHARED_PREFERENCES_NAME = "sharedPref"
+    const val KEY_FIRST_TIME_TOGGLE = "KEY_FIRST_TIME_TOGGLE"
+    const val KEY_NAME = "KEY_NAME"
+    const val KEY_WEIGHT = "KEY_WEIGHT"
+
     const val LOCATION_UPDATE_INTERVAL = 5000L
     const val FASTEST_LOCATION_INTERVAL = 2000L
 
     const val POLYLINE_COLOR = R.color.theme_light_blue
-    const val POLYLINE_WIDTH = 8F
-    const val MAP_ZOOM = 15F
+    const val POLYLINE_WIDTH = 15F
+    const val MAP_ZOOM = 17F
 
     const val NOTIFICATION_CHANNEL_ID = "tracking_channel"
     const val NOTIFICATION_CHANNEL_NAME = "Tracking"

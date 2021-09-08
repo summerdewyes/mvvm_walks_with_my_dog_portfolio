@@ -60,7 +60,6 @@ class TrackingService : LifecycleService() {
 
     private val timeRunInSeconds = MutableLiveData<Long>()
 
-
     @Inject
     lateinit var baseNotificationBuilder: NotificationCompat.Builder // 기본 알림
 
@@ -233,7 +232,7 @@ class TrackingService : LifecycleService() {
                 result?.locations?.let { locations ->
                     for (location in locations) {
                         addPathPoint(location)
-                        Timber.d("NEW LOCATION : ${location.latitude}, ${location.latitude}")
+                        Timber.d("NEW LOCATION : ${location.latitude}, ${location.longitude}")
                     }
                 }
             }
@@ -245,7 +244,7 @@ class TrackingService : LifecycleService() {
      */
     private fun addPathPoint(location: Location?) {
         location?.let {
-            val pos = LatLng(location.latitude, location.latitude)
+            val pos = LatLng(location.latitude, location.longitude)
             pathPoints.value?.apply {
                 last().add(pos)
                 pathPoints.postValue(this)
