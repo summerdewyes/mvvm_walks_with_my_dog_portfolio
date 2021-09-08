@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">mvvm_walks_with_my_dog</string>
+    <string name="app_name">어야가자</string>
 
     <string-array name="filter_options">
         <item>날짜</item>
