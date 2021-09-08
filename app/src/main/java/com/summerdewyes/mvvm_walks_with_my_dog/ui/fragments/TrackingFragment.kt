@@ -54,7 +54,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
         btnFinishRun.setOnClickListener {
             zoomToSeeWholeTrack()
-            endRunAndSaveToDb()
+            showSaveTrackingDialog()
         }
 
         btnToggleRun.setOnClickListener {
@@ -119,6 +119,17 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
     }
 
+    /**
+     * 산책 저장 다이어로그
+     */
+    private fun showSaveTrackingDialog() {
+        SaveTrackingDialog().apply {
+            setYesListener {
+                endRunAndSaveToDb()
+            }
+        }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
+    }
+
     private fun stopRun() {
         tvTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
@@ -160,16 +171,18 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     private fun zoomToSeeWholeTrack() {
         val bounds = LatLngBounds.Builder()
         for (polyline in pathPoints) {
-            for (pos in polyline) {
-                bounds.include(pos)
+            for (point in polyline) {
+                bounds.include(point)
             }
         }
+        val width = mapView.width
+        val height = mapView.height
         map?.animateCamera(
             CameraUpdateFactory.newLatLngBounds(
                 bounds.build(),
-                mapView.width,
-                mapView.height,
-                (mapView.height * 0.05f).toInt()
+                width,
+                height,
+                (height * 0.05f).toInt()
             )
         )
     }
