@@ -14,6 +14,7 @@
 * CardView
 
 
+
 ### - 산책
 산책의 이동 거리, 이동 시간, 동선 등을 기록합니다.
 
@@ -23,7 +24,7 @@
 ### - 기록
 산책 기록들을 확인할 수 있습니다.
 
-![기록](https://user-images.githubusercontent.com/74890579/132470785-98169ff6-7d5d-4ee4-96b5-8b5a26d806a9.gif)
+![기록](https://user-images.githubusercontent.com/74890579/132471776-91732edf-ba07-4b1f-afb6-b7adacab1311.gif)
 
 
 
