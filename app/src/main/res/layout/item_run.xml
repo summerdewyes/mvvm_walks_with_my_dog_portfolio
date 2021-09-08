@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:paddingBottom="@dimen/margin_default_mul">
 
     <ImageView
         android:id="@+id/ivRunImage"
@@ -58,6 +58,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/tvDistance"
         app:layout_constraintTop_toBottomOf="@+id/ivRunImage" />
+
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvCalories"

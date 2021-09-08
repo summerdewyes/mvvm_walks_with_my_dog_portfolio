@@ -20,4 +20,6 @@
     <color name="theme_yellow">#feb544</color>
     <color name="theme_light_yellow">#fee4b3</color>
     <color name="theme_light_blue">#c0d3d9</color>
+
+    <color name="ic_launcher_background">#feb544</color>
 </resources>

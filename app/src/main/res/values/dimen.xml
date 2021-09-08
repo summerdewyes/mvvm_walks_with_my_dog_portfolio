@@ -15,7 +15,10 @@
 
     <!--cardView-->
     <dimen name="cardView_size">120sp</dimen>
-    <dimen name="cardView_corner_radius">60sp</dimen>
+
+    <!--radius-->
+    <dimen name="btn_corner_radius">60sp</dimen>
+    <dimen name="corner_radius">10sp</dimen>
 
 
 </resources>
