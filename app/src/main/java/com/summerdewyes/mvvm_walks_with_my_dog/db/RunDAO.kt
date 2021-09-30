@@ -6,12 +6,21 @@ import androidx.room.*
 @Dao
 interface RunDAO {
 
+    /**
+     * 삽입
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRun(run: Run)
 
+    /**
+     * 삭제
+     */
     @Delete
     suspend fun deleteRun(run: Run)
 
+    /**
+     * 읽기
+     */
     @Query("SELECT * FROM running_table ORDER BY timestamp DESC")
     fun getAllRunsSortedByDate(): LiveData<List<Run>>
 
