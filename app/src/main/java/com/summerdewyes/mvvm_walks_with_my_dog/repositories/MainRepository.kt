@@ -4,8 +4,13 @@ import com.summerdewyes.mvvm_walks_with_my_dog.db.Run
 import com.summerdewyes.mvvm_walks_with_my_dog.db.RunDAO
 import javax.inject.Inject
 
+
+/**
+ * 데이터베이스 기능을 제공하는 MainRepository 입니다.
+ */
+
 class MainRepository @Inject constructor(
-    val runDao : RunDAO
+    val runDao: RunDAO // @Inject 로 주생성자에 데이터베이스를 주입합니다.
 ) {
 
     suspend fun insertRun(run: Run) = runDao.insertRun(run)

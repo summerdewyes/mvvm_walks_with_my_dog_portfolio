@@ -10,9 +10,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+/**
+ * MainRepository 에서 데이터를 수집하고
+ * MainViewModel에서 데이터가 필요한 모든 fragment에 데이터를 제공합니다.
+ */
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val mainRepository: MainRepository
+    val mainRepository: MainRepository // 수집한 데이터를 사용하기 위해서는 MainViewModel 내부에 MainRepository 인스턴스가 필요하므로 주생성자에 주입합니다.
 ) : ViewModel() {
 
     private val runSortedByDate = mainRepository.getAllRunsSortedByDate()
