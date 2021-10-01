@@ -21,14 +21,16 @@ import javax.inject.Singleton
 
 /**
  * 제일 처음 실행 됩니다.
- * BaseApplication.kt로 종속성을 주입하고 싶다고 앱에 알리고 실제로 수행 할 AppModule을 만들었습니다.
+ * Component에 연결되어 의존성 객체를 생성하는 역할.
+ * 이곳에서는 SingletonComponent 연결되어 앱의 전체 수명동안 존재하고 앱이 다시 파괴 될 때 함께 파괴됩니다.
+ *
+ * @Singleton 어노테이션은 객체의 수명(Scope)을 지정하고 Dagger에 알려주는 역할을 합니다,
+ * 해당 Component의 객체가 살아있는 동안에는 계속 같은 객체를 사용하게 됩니다.
  */
 
 @Module
-@InstallIn(SingletonComponent::class) // 앱 모듈 내부의 객체가 생성되는 시점과 소멸되는 시점을 결정합니다. SingletonComponent는 앱의 전체 수명동안 존재하고 앱이 다시 파괴 될 때 함께 파괴됩니다.
+@InstallIn(SingletonComponent::class) // 앱 모듈 내부의 객체가 생성되는 시점과 소멸되는 시점을 결정합니다.
 object AppModule {
-
-    // @Singleton 범위 지정으로 SingletonComponent의 인스턴스 당 한 번만 생성되며, 해당 바인딩에 대한 모든 요청은 동일한 인스턴스를 공유합니다.
 
     // 해당 데이터베이스를 사용할 클래스에 대해 실행 중인 데이터베이스를 생성합니다.
     // Dagger는 Context를 어디에서 가져와야 하는지 알지 못하기 때문에 @ApplicationContext 주석을 추가하여 해결할 수 있습니다.
