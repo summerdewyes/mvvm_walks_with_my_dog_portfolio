@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.adpater.RunAdapter
-import com.summerdewyes.mvvm_walks_with_my_dog.db.Run
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.REQUEST_CODE_LOCATION_PERMISSION
 import com.summerdewyes.mvvm_walks_with_my_dog.other.SortType
@@ -24,7 +22,6 @@ import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_run.*
-import kotlinx.android.synthetic.main.fragment_settings.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject

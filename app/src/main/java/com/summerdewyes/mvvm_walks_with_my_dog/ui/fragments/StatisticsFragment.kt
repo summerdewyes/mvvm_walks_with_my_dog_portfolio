@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
-import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.StatisticsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_statistics.*

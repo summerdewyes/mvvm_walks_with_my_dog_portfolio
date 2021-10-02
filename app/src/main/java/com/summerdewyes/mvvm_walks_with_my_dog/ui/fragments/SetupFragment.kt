@@ -12,10 +12,8 @@ import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.KEY_FIRST_TIME_TO
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.KEY_NAME
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.KEY_WEIGHT
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_run.*
 import kotlinx.android.synthetic.main.fragment_setup.*
 import kotlinx.android.synthetic.main.fragment_setup.continueLayout
-import kotlinx.android.synthetic.main.fragment_setup.tvWelcome
 import javax.inject.Inject
 
 @AndroidEntryPoint

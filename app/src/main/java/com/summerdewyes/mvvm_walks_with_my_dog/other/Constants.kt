@@ -1,6 +1,5 @@
 package com.summerdewyes.mvvm_walks_with_my_dog.other
 
-import android.graphics.Color
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 
 object Constants {

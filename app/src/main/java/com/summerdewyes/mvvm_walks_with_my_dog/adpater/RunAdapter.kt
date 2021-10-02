@@ -11,7 +11,6 @@ import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.db.Run
 import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
 import kotlinx.android.synthetic.main.item_run.view.*
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
