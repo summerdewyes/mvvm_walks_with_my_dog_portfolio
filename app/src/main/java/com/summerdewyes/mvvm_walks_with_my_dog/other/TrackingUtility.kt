@@ -46,7 +46,7 @@ object TrackingUtility {
     }
 
     /**
-     * 타이머
+     * 시간 값을 취하는 유틸리티 함수
      */
     fun getFormattedStopWatchTime(ms: Long, includeMillis: Boolean = false): String {
         var milliseconds = ms

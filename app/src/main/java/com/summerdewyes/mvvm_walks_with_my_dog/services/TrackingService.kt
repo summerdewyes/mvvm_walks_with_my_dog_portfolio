@@ -11,13 +11,11 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
-import android.os.LocaleList
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -26,7 +24,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_PAUSE_SERVICE
-import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_STOP_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.FASTEST_LOCATION_INTERVAL
@@ -36,7 +33,6 @@ import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.NOTIFICATION_CHAN
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.NOTIFICATION_ID
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.TIMER_UPDATE_INTERVAL
 import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
-import com.summerdewyes.mvvm_walks_with_my_dog.ui.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,7 +83,7 @@ class TrackingService :
         super.onCreate()
         curNotificationBuilder = baseNotificationBuilder
         postInitialValues() //isTracking=false, pathPoints=mutableListOf() 초기화
-        fusedLocationProviderClient = FusedLocationProviderClient(this)
+        fusedLocationProviderClient = FusedLocationProviderClient(this) // 위치 서비스 클라이언트 만들기
 
         /**
          * isTracking을 관찰하여 값이 TRUE이고 위치 퍼미션이 켜져 있으면 위치 업데이트를 요청합니다. 아니라면 업데이트를 중지합니다.
@@ -98,16 +94,6 @@ class TrackingService :
         })
 
     }
-
-    private fun killService() {
-        serviceKilled = true
-        isFirstRun = true
-        pauseService()
-        postInitialValues()
-        stopForeground(true)
-        stopSelf()
-    }
-
 
     /**
      * Activity나 Fragment에서 Intent를 보내고 Service에서 처리하는 경우, 액션이 첨부된 인텐트를 보내고 서비스 클래스 내부에서 해당 액션이 무엇인지 확인한 후 그에 따라 행동 할 수 있습니다.
@@ -139,20 +125,22 @@ class TrackingService :
         return super.onStartCommand(intent, flags, startId)
     }
 
+
+    /**
+     * 타이머
+     */
     private var isTimerEnabled = false
     private var lapTime = 0L
     private var timeRun = 0L
     private var timeStarted = 0L
     private var lastSecondTimestamp = 0L
 
-    /**
-     * 타이머
-     */
     private fun startTimer() {
-        addEmptyPolyline() // 서비스가 시작되면 pathPoints에 Polylines를 담습니다. null이라면 mutableListOf()를 return 합니다.
+        addEmptyPolyline() // 목록에 빈 폴리라인을 추가해야하고 타이머를 시작할 때마다 true 값을 게시하고 싶습니다.
         isTracking.postValue(true)
         timeStarted = System.currentTimeMillis()
         isTimerEnabled = true
+        // ANR 오류를 대비하여 코루틴 사용
         CoroutineScope(Dispatchers.Main).launch {
             while (isTracking.value!!) {
                 // time difference between now and timeStarted
@@ -177,15 +165,32 @@ class TrackingService :
         isTimerEnabled = false
     }
 
+    private fun killService() {
+        serviceKilled = true
+        isFirstRun = true
+        pauseService()
+        postInitialValues()
+        stopForeground(true)
+        stopSelf()
+    }
+
     @SuppressLint("MissingPermission")
     private fun updateLocationTracking(isTracking: Boolean) {
         if (isTracking) {
             if (TrackingUtility.hasLocationPermissions(this)) {
-                val request = LocationRequest().apply {
-                    interval = LOCATION_UPDATE_INTERVAL
-                    fastestInterval = FASTEST_LOCATION_INTERVAL
-                    priority = PRIORITY_HIGH_ACCURACY
+
+                /**
+                 * 위치 업데이트 요청
+                 */
+                val request = LocationRequest.create().apply {
+                    interval = LOCATION_UPDATE_INTERVAL // 위치 업데이트 수신 간격
+                    fastestInterval = FASTEST_LOCATION_INTERVAL // 위치 업데이트 수신에 가장 빠른 간격
+                    priority = PRIORITY_HIGH_ACCURACY // 요청의 우선순위를 설정 -> 가장 정확한 위치를 요청
                 }
+
+                /**
+                 * 위치 요청
+                 */
                 fusedLocationProviderClient.requestLocationUpdates(
                     request,
                     locationCallback,
@@ -193,12 +198,17 @@ class TrackingService :
                 )
             }
         } else {
+
+            /**
+             * 위치 업데이트 중지
+             */
             fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         }
     }
 
 
     /**
+     *  위치 업데이트 콜백 정의
      *  isTracking이 TRUE일 때  -> addPathPoint
      */
     val locationCallback = object : LocationCallback() {
@@ -220,55 +230,22 @@ class TrackingService :
      */
     private fun addPathPoint(location: Location?) {
         location?.let {
-            val pos = LatLng(location.latitude, location.longitude)
+            val position = LatLng(location.latitude, location.longitude)
             pathPoints.value?.apply {
-                last().add(pos)
+                last().add(position)
                 pathPoints.postValue(this)
             }
         }
     }
 
     /**
-     * 전체 Polyline 목록
+     * pathPoints의 첫번째 폴리라인
      */
     private fun addEmptyPolyline() = pathPoints.value?.apply {
-        add(mutableListOf()) // 빈 목록을 추가하여 변경 할 수 있는 목록을 제거 -> 변경사항 추가
+        add(mutableListOf()) // 빈 목록을 추가하여 변경 할 수 있는 목록을 제거
         pathPoints.postValue(this) // 현재 폴리라인의 객체를 참조하고 위에서 변경사항이 추가되었기 때문에 변경 사항에 대해 Fragment에 알립니다.
-    } ?: pathPoints.postValue(mutableListOf(mutableListOf())) // 폴리라인 목록을 초기화하고 첫 번째 빈 폴리라인만 추가가
+    } ?: pathPoints.postValue(mutableListOf(mutableListOf())) // 폴리라인 목록을 초기화하고 첫 번째 빈 폴리라인을 추가하여 좌표를 쉽게 추가하고 추적을 시작합니다.
 
-
-    /**
-     * isTracking에 따라 Notification 객체에 전달할 Pending Intent를 생성, 알림 UI가 업데이트 됩니다.
-     */
-    private fun updateNotificationTrackingState(isTracking: Boolean) {
-        val notificationActionText = if (isTracking) "일시정지" else "재시작"
-        val pendingIntent = if (isTracking) {
-            val pauseIntent = Intent(this, TrackingService::class.java).apply {
-                action = ACTION_PAUSE_SERVICE
-            }
-            PendingIntent.getService(this, 1, pauseIntent, FLAG_UPDATE_CURRENT) // FLAG_UPDATE_CURRENT == 이미 생성된 PendingIntent 가 존재하면 해당 intnet 의 extra data 만 변경
-        } else {
-            val resumeIntent = Intent(this, TrackingService::class.java).apply {
-                action = ACTION_START_OR_RESUME_SERVICE
-            }
-            PendingIntent.getService(this, 2, resumeIntent, FLAG_UPDATE_CURRENT)
-        }
-
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        curNotificationBuilder.javaClass.getDeclaredField("mActions").apply {
-            isAccessible = true
-            set(curNotificationBuilder, ArrayList<NotificationCompat.Action>())
-        }
-
-        if (!serviceKilled) {
-            curNotificationBuilder = baseNotificationBuilder
-                .addAction(R.drawable.ic_add_black, notificationActionText, pendingIntent)
-            notificationManager.notify(NOTIFICATION_ID, curNotificationBuilder.build())
-        }
-
-    }
 
     /**
      * Foreground Service 시작
@@ -279,7 +256,8 @@ class TrackingService :
 
 
         // 1. 알림 생성을 위한 NotificationManager 생성
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // 2. 알림 채널 만들기
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -313,5 +291,43 @@ class TrackingService :
         )
 
         notificationManager.createNotificationChannel(channel) // 채널을 NotificationManager에 등록
+    }
+
+    /**
+     * isTracking에 따라 Notification 객체에 전달할 Pending Intent를 생성, 알림 UI가 업데이트 됩니다.
+     */
+    private fun updateNotificationTrackingState(isTracking: Boolean) {
+        val notificationActionText = if (isTracking) "일시정지" else "재시작"
+        val pendingIntent = if (isTracking) {
+            val pauseIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_PAUSE_SERVICE
+            }
+            PendingIntent.getService(
+                this,
+                1,
+                pauseIntent,
+                FLAG_UPDATE_CURRENT
+            ) // FLAG_UPDATE_CURRENT == 이미 생성된 PendingIntent 가 존재하면 해당 intnet 의 extra data 만 변경
+        } else {
+            val resumeIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_START_OR_RESUME_SERVICE
+            }
+            PendingIntent.getService(this, 2, resumeIntent, FLAG_UPDATE_CURRENT)
+        }
+
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        curNotificationBuilder.javaClass.getDeclaredField("mActions").apply {
+            isAccessible = true
+            set(curNotificationBuilder, ArrayList<NotificationCompat.Action>())
+        }
+
+        if (!serviceKilled) {
+            curNotificationBuilder = baseNotificationBuilder
+                .addAction(R.drawable.ic_add_black, notificationActionText, pendingIntent)
+            notificationManager.notify(NOTIFICATION_ID, curNotificationBuilder.build())
+        }
+
     }
 }

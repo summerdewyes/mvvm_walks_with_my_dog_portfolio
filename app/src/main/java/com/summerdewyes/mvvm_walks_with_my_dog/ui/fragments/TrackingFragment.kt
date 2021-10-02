@@ -109,28 +109,6 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     }
 
     /**
-     * 산책 중지 다이어로그
-     */
-    private fun showCancelTrackingDialog() {
-        CancelTrackingDialog().apply {
-            setYesListener {
-                stopRun()
-            }
-        }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
-    }
-
-    /**
-     * 산책 저장 다이어로그
-     */
-    private fun showSaveTrackingDialog() {
-        SaveTrackingDialog().apply {
-            setYesListener {
-                endRunAndSaveToDb()
-            }
-        }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
-    }
-
-    /**
      * 산책 중지에 맞는 Intent 상태를 TrackingService에 보냅니다.
      */
     private fun stopRun() {
@@ -151,6 +129,37 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             btnToggleRunTxt.text = "시작"
             miCancelTracking.visibility = View.VISIBLE
             btnFinishRun.visibility = View.VISIBLE
+        }
+    }
+
+
+    /**
+     * 화면 회전 후에도 폴리라인이 표시되도록 모든 폴리라인을 pathPoints 목록에 추가합니다.
+     */
+    private fun addAllPolylines() {
+        for (polyline in pathPoints) {
+            val polylineOptions = PolylineOptions()
+                .color(POLYLINE_COLOR)
+                .width(POLYLINE_WIDTH)
+                .addAll(polyline)
+            map?.addPolyline(polylineOptions)
+        }
+    }
+
+
+    /**
+     * 움직이는 유저를 따라 폴리라인을 그립니다.
+     */
+    private fun addLatestPolyline() {
+        if (pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
+            val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
+            val lastLatLng = pathPoints.last().last()
+            val polylineOptions = PolylineOptions()
+                .color(POLYLINE_COLOR)
+                .width(POLYLINE_WIDTH)
+                .add(preLastLatLng)
+                .add(lastLatLng)
+            map?.addPolyline(polylineOptions)
         }
     }
 
@@ -215,32 +224,26 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }
     }
 
-
-    private fun addAllPolylines() {
-        for (polyline in pathPoints) {
-            val polylineOptions = PolylineOptions()
-                .color(POLYLINE_COLOR)
-                .width(POLYLINE_WIDTH)
-                .addAll(polyline)
-            map?.addPolyline(polylineOptions)
-        }
+    /**
+     * 산책 저장 다이어로그
+     */
+    private fun showSaveTrackingDialog() {
+        SaveTrackingDialog().apply {
+            setYesListener {
+                endRunAndSaveToDb()
+            }
+        }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
     }
 
-
     /**
-     * 움직이는 유저를 따라 폴리라인을 그립니다.
+     * 산책 중지 다이어로그
      */
-    private fun addLatestPolyline() {
-        if (pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
-            val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
-            val lastLatLng = pathPoints.last().last()
-            val polylineOptions = PolylineOptions()
-                .color(POLYLINE_COLOR)
-                .width(POLYLINE_WIDTH)
-                .add(preLastLatLng)
-                .add(lastLatLng)
-            map?.addPolyline(polylineOptions)
-        }
+    private fun showCancelTrackingDialog() {
+        CancelTrackingDialog().apply {
+            setYesListener {
+                stopRun()
+            }
+        }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
     }
 
     /**
@@ -252,6 +255,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             requireContext().startService(Intent)
         }
     }
+
 
     override fun onResume() {
         super.onResume()
