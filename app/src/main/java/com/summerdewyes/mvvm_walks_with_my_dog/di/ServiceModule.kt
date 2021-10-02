@@ -26,6 +26,9 @@ object ServiceModule {
     ) = FusedLocationProviderClient(app)
 
 
+    /**
+     * Base Notification이 생성 되면 MainActivity에 PendingIntent 전달
+     */
     @ServiceScoped
     @Provides
     fun provideMainActivityPendingIntent(
@@ -39,6 +42,9 @@ object ServiceModule {
         PendingIntent.FLAG_UPDATE_CURRENT
     )
 
+    /**
+     * NotificationCompat.Builder로 Notification 객체를 만듭니다. 이 객체는 기본 알림 정보가 들어있습니다.
+     */
     @ServiceScoped
     @Provides
     fun provideBaseNotificationBuilder(

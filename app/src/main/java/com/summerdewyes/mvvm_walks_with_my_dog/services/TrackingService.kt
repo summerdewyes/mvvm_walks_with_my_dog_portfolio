@@ -45,12 +45,17 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-//Top level 변수
+/**
+ * 화면 출력이 필요없는 백그라운드에서 장시간 실행해야 할 업무를 담당합니다.
+ */
+
+//Top level 변수 -> 데이터 타입 별칭 선언
 typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
 
 @AndroidEntryPoint
-class TrackingService : LifecycleService() {
+class TrackingService :
+    LifecycleService() { // LifecycleService는 LifecycleOwner를 구현한 Service의 확장 클래스 입니다.
 
     var isFirstRun = true
     var serviceKilled = false
@@ -60,10 +65,10 @@ class TrackingService : LifecycleService() {
 
     private val timeRunInSeconds = MutableLiveData<Long>()
 
+    // 알림 빌더
     @Inject
     lateinit var baseNotificationBuilder: NotificationCompat.Builder // 기본 알림
-
-    lateinit var curNotificationBuilder: NotificationCompat.Builder // 현재 알림
+    lateinit var curNotificationBuilder: NotificationCompat.Builder // 바뀌는 알림
 
     companion object {
         val timeRunInMillis = MutableLiveData<Long>()
@@ -94,7 +99,7 @@ class TrackingService : LifecycleService() {
 
     }
 
-    private fun killService(){
+    private fun killService() {
         serviceKilled = true
         isFirstRun = true
         pauseService()
@@ -103,6 +108,10 @@ class TrackingService : LifecycleService() {
         stopSelf()
     }
 
+
+    /**
+     * Activity나 Fragment에서 Intent를 보내고 Service에서 처리하는 경우, 액션이 첨부된 인텐트를 보내고 서비스 클래스 내부에서 해당 액션이 무엇인지 확인한 후 그에 따라 행동 할 수 있습니다.
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
             when (it.action) {
@@ -168,39 +177,6 @@ class TrackingService : LifecycleService() {
         isTimerEnabled = false
     }
 
-    /**
-     * isTracking에 따라서 알림 UI가 업데이트 됩니다.
-     */
-    private fun updateNotificationTrackingState(isTracking: Boolean) {
-        val notificationActionText = if(isTracking) "일시정지" else "재시작"
-        val pendingIntent = if(isTracking) {
-            val pauseIntent = Intent(this, TrackingService::class.java).apply {
-                action = ACTION_PAUSE_SERVICE
-            }
-            PendingIntent.getService(this, 1, pauseIntent, FLAG_UPDATE_CURRENT)
-        } else {
-            val resumeIntent = Intent(this, TrackingService::class.java).apply {
-                action = ACTION_START_OR_RESUME_SERVICE
-            }
-            PendingIntent.getService(this, 2, resumeIntent, FLAG_UPDATE_CURRENT)
-        }
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        curNotificationBuilder.javaClass.getDeclaredField("mActions").apply {
-            isAccessible = true
-            set(curNotificationBuilder, ArrayList<NotificationCompat.Action>())
-        }
-
-        if (!serviceKilled){
-            curNotificationBuilder = baseNotificationBuilder
-                .addAction(R.drawable.ic_add_black, notificationActionText, pendingIntent)
-            notificationManager.notify(NOTIFICATION_ID, curNotificationBuilder.build())
-        }
-
-    }
-
-
     @SuppressLint("MissingPermission")
     private fun updateLocationTracking(isTracking: Boolean) {
         if (isTracking) {
@@ -252,47 +228,90 @@ class TrackingService : LifecycleService() {
         }
     }
 
-
+    /**
+     * 전체 Polyline 목록
+     */
     private fun addEmptyPolyline() = pathPoints.value?.apply {
-        add(mutableListOf())
-        pathPoints.postValue(this)
-    } ?: pathPoints.postValue(mutableListOf(mutableListOf()))
+        add(mutableListOf()) // 빈 목록을 추가하여 변경 할 수 있는 목록을 제거 -> 변경사항 추가
+        pathPoints.postValue(this) // 현재 폴리라인의 객체를 참조하고 위에서 변경사항이 추가되었기 때문에 변경 사항에 대해 Fragment에 알립니다.
+    } ?: pathPoints.postValue(mutableListOf(mutableListOf())) // 폴리라인 목록을 초기화하고 첫 번째 빈 폴리라인만 추가가
 
 
     /**
-     * 서비스가 시작되면...
+     * isTracking에 따라 Notification 객체에 전달할 Pending Intent를 생성, 알림 UI가 업데이트 됩니다.
+     */
+    private fun updateNotificationTrackingState(isTracking: Boolean) {
+        val notificationActionText = if (isTracking) "일시정지" else "재시작"
+        val pendingIntent = if (isTracking) {
+            val pauseIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_PAUSE_SERVICE
+            }
+            PendingIntent.getService(this, 1, pauseIntent, FLAG_UPDATE_CURRENT) // FLAG_UPDATE_CURRENT == 이미 생성된 PendingIntent 가 존재하면 해당 intnet 의 extra data 만 변경
+        } else {
+            val resumeIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_START_OR_RESUME_SERVICE
+            }
+            PendingIntent.getService(this, 2, resumeIntent, FLAG_UPDATE_CURRENT)
+        }
+
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        curNotificationBuilder.javaClass.getDeclaredField("mActions").apply {
+            isAccessible = true
+            set(curNotificationBuilder, ArrayList<NotificationCompat.Action>())
+        }
+
+        if (!serviceKilled) {
+            curNotificationBuilder = baseNotificationBuilder
+                .addAction(R.drawable.ic_add_black, notificationActionText, pendingIntent)
+            notificationManager.notify(NOTIFICATION_ID, curNotificationBuilder.build())
+        }
+
+    }
+
+    /**
+     * Foreground Service 시작
      */
     private fun startForegroundService() {
         startTimer()
         isTracking.postValue(true) //서비스가 시작되면 isTracking은 TRUE가 됩니다.
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+        // 1. 알림 생성을 위한 NotificationManager 생성
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // 2. 알림 채널 만들기
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(notificationManager)
         }
 
-        startForeground(NOTIFICATION_ID, baseNotificationBuilder.build()) //서비스가 시작될 때 알림을 띄웁니다.
+        // 3. 서비스가 포그라운드에서 실행되도록 요청, Notification Base 객체 생성
+        startForeground(NOTIFICATION_ID, baseNotificationBuilder.build())
 
         timeRunInSeconds.observe(this, {
-            if (!serviceKilled){
+            if (!serviceKilled) {
+                // Inject된 알림 객체로 타이머 observe
                 val notification = curNotificationBuilder
                     .setContentText(TrackingUtility.getFormattedStopWatchTime(it * 1000L))
+                // 4. 알림 띄우기
                 notificationManager.notify(NOTIFICATION_ID, notification.build())
             }
 
         })
     }
 
-    //알림 채널 생성
+    /**
+     * NotificationChannel로 알림 채널 생성
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(notificationManager: NotificationManager) {
         val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
-            IMPORTANCE_LOW
+            NOTIFICATION_CHANNEL_ID, // 채널의 식별값
+            NOTIFICATION_CHANNEL_NAME, // 채널 이름
+            IMPORTANCE_LOW // 알림의 중요도 -> 중간 중요도, 알림음이 울리지 않음.
         )
-        notificationManager.createNotificationChannel(channel)
+
+        notificationManager.createNotificationChannel(channel) // 채널을 NotificationManager에 등록
     }
 }

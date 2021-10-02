@@ -21,9 +21,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        /**
+         * onCreate() 생명주기 안 에서 Notification 클릭시 TrackingFragment로 이동
+         */
         navigateToTrackingFragmentIfNeeded(intent)
 
-        bottomNavigationView.setupWithNavController(navHostFragment.findNavController())
+        bottomNavigationView.setupWithNavController(navHostFragment.findNavController()) // 네비게이션 뷰를 네비게이션 컴포넌트와 연결
         bottomNavigationView.setOnItemReselectedListener { /* no - op */ }
 
         navHostFragment.findNavController()
@@ -36,11 +39,18 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    /**
+     * nav_graph.xml 안 action_global_trackingFragment가 launchSingleTop으로 설정되어 있기 때문에 호출된 함수입니다.
+     * 인텐트가 다시 발생하더라도 객체가 다시 생성되지 않고 객체의 데이터만 변경됩니다.
+     */
+   override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         navigateToTrackingFragmentIfNeeded(intent)
     }
 
+    /**
+     * onCreate() 생명주기 밖에서 Notification 클릭시 TrackingFragment로 이동
+     */
     private fun navigateToTrackingFragmentIfNeeded(intent: Intent?){
         if(intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
             navHostFragment.findNavController().navigate(R.id.action_global_trackingFragment)

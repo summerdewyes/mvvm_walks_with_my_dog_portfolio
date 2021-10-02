@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object TrackingUtility {
 
+    // 현지 기기의 빌드 버젼이 Android Q보다 작다면 로케이션에 필요한 퍼미션 체크
     fun hasLocationPermissions(context: Context) =
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             EasyPermissions.hasPermissions(

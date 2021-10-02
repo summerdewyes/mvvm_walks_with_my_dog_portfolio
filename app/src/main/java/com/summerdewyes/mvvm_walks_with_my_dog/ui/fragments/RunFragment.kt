@@ -133,7 +133,7 @@ class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionC
      * 권한체크
      */
     private fun requestPermissions() {
-        if (TrackingUtility.hasLocationPermissions(requireContext())) {
+        if (TrackingUtility.hasLocationPermissions(requireContext())) { // 권한이 있는 경우에는 권한을 요청하지 않습니다.
             return
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {

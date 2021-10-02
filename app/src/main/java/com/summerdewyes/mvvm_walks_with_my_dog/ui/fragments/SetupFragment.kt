@@ -42,15 +42,15 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         }
 
         continueLayout.setOnClickListener {
-            val success = writePersonalDateToSharedPref()
+            val success = writePersonalDateToSharedPref() // writePersonalDateToSharedPref()함수의 타입이 Boolean
             if(success){
-                findNavController().navigate(R.id.action_setupFragment_to_runFragment)
+                findNavController().navigate(R.id.action_setupFragment_to_runFragment) // 네비게이션 action
             } else {
                 Snackbar.make(requireView(), "이름과 몸무게를 모두 입력해주세요 :)", Snackbar.LENGTH_SHORT).show()
             }
-
         }
     }
+
 
     private fun writePersonalDateToSharedPref() : Boolean {
         val name = etName.text.toString()

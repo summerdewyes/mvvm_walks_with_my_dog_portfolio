@@ -112,6 +112,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--Mapfragment를 사용하면 수명주기를 따로 걱정하지 않아도 되지만 이 앱은
+     이미 많은 fragment를 사용하고 있기 때문에 Mapfragment보다 MapView를 사용했다.-->
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"

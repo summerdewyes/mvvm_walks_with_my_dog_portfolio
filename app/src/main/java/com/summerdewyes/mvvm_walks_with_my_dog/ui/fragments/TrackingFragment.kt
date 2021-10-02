@@ -97,7 +97,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     }
 
     /**
-     * isTracking의 상태에 따라 서비스 상태를 변경합니다.
+     * isTracking의 상태에 따라 TrackingService에 보낼 Intent 상태를 변경합니다.
      */
     private fun toggleRun() {
         if (isTracking) {
@@ -130,6 +130,9 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
     }
 
+    /**
+     * 산책 중지에 맞는 Intent 상태를 TrackingService에 보냅니다.
+     */
     private fun stopRun() {
         tvTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
@@ -240,7 +243,9 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }
     }
 
-    // 서비스 액션 전송
+    /**
+     * TrackingService에 액션 전송
+     */
     private fun sendCommandToService(action: String) {
         Intent(requireContext(), TrackingService::class.java).also { Intent ->
             Intent.action = action
