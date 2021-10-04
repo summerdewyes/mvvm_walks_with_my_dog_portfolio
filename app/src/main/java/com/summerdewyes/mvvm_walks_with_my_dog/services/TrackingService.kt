@@ -248,6 +248,20 @@ class TrackingService :
 
 
     /**
+     * NotificationChannel로 알림 채널 생성
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(notificationManager: NotificationManager) {
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID, // 채널 식별 값
+            NOTIFICATION_CHANNEL_NAME, // 채널 이름
+            IMPORTANCE_LOW // 알림의 중요도 -> 중간 중요도, 알림음이 울리지 않음.
+        )
+
+        notificationManager.createNotificationChannel(channel) // 채널을 NotificationManager에 등록
+    }
+
+    /**
      * Foreground Service 시작
      */
     private fun startForegroundService() {
@@ -256,8 +270,7 @@ class TrackingService :
 
 
         // 1. 알림 생성을 위한 NotificationManager 생성
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // 2. 알림 채널 만들기
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -277,20 +290,6 @@ class TrackingService :
             }
 
         })
-    }
-
-    /**
-     * NotificationChannel로 알림 채널 생성
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(notificationManager: NotificationManager) {
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, // 채널의 식별값
-            NOTIFICATION_CHANNEL_NAME, // 채널 이름
-            IMPORTANCE_LOW // 알림의 중요도 -> 중간 중요도, 알림음이 울리지 않음.
-        )
-
-        notificationManager.createNotificationChannel(channel) // 채널을 NotificationManager에 등록
     }
 
     /**

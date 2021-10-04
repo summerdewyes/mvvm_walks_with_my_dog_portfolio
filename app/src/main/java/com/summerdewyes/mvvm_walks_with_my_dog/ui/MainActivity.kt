@@ -3,6 +3,7 @@ package com.summerdewyes.mvvm_walks_with_my_dog.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -10,6 +11,7 @@ import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -19,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         /**
-         * onCreate() 생명주기 안 에서 Notification 클릭시 TrackingFragment로 이동
+         * ACTION_SHOW_TRACKING_FRAGMENT 를 전달받음
          */
         navigateToTrackingFragmentIfNeeded(intent)
 
@@ -46,11 +48,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * onCreate() 생명주기 밖에서 Notification 클릭시 TrackingFragment로 이동
+     * Notification 클릭시 TrackingFragment로 이동
      */
     private fun navigateToTrackingFragmentIfNeeded(intent: Intent?){
         if(intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
             navHostFragment.findNavController().navigate(R.id.action_global_trackingFragment)
         }
     }
+
 }
