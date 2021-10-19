@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
 import com.summerdewyes.mvvm_walks_with_my_dog.R
+import com.summerdewyes.mvvm_walks_with_my_dog.databinding.FragmentTrackingBinding
 import com.summerdewyes.mvvm_walks_with_my_dog.db.Run
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_PAUSE_SERVICE
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.ACTION_START_OR_RESUME_SERVICE
@@ -25,7 +26,6 @@ import com.summerdewyes.mvvm_walks_with_my_dog.services.Polyline
 import com.summerdewyes.mvvm_walks_with_my_dog.services.TrackingService
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_tracking.*
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.round
@@ -34,6 +34,9 @@ const val CANCEL_TRACKING_DIALOG_TAG = "CancelDialog"
 
 @AndroidEntryPoint
 class TrackingFragment : Fragment(R.layout.fragment_tracking) {
+
+    private var _binding: FragmentTrackingBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -47,25 +50,34 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     @set:Inject
     var weight = 80f
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentTrackingBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapViewBundle = savedInstanceState?.getBundle(MAP_VIEW_BUNDLE_KEY)
-        mapView.onCreate(mapViewBundle)
+        binding.mapView.onCreate(mapViewBundle)
 
-        btnFinishRun.setOnClickListener {
+        binding.btnFinishRun.setOnClickListener {
             zoomToSeeWholeTrack()
             showSaveTrackingDialog()
         }
 
-        btnToggleRun.setOnClickListener {
+        binding.btnToggleRun.setOnClickListener {
             toggleRun()
         }
 
-        miCancelTracking.setOnClickListener {
+        binding.miCancelTracking.setOnClickListener {
             showCancelTrackingDialog()
         }
 
-        mapView.getMapAsync { googleMap ->
+        binding.mapView.getMapAsync { googleMap ->
             map = googleMap
             // Sets the map type to be "hybrid"
             map?.let { map ->
@@ -92,7 +104,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         TrackingService.timeRunInMillis.observe(viewLifecycleOwner, {
             curTimeInMillis = it
             val formattedTime = TrackingUtility.getFormattedStopWatchTime(curTimeInMillis, true)
-            tvTimer.text = formattedTime
+            binding.tvTimer.text = formattedTime
         })
     }
 
@@ -101,7 +113,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
      */
     private fun toggleRun() {
         if (isTracking) {
-            miCancelTracking.visibility = View.VISIBLE
+            binding.miCancelTracking.visibility = View.VISIBLE
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
@@ -112,7 +124,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
      * 산책 중지에 맞는 Intent 상태를 TrackingService에 보냅니다.
      */
     private fun stopRun() {
-        tvTimer.text = "00:00:00:00"
+        binding.tvTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
         findNavController().navigate(R.id.action_trackingFragment_to_runFragment)
     }
@@ -123,12 +135,12 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     private fun updateTracking(isTracking: Boolean) {
         this.isTracking = isTracking
         if (isTracking) {
-            btnToggleRunTxt.text = "중지"
-            btnFinishRun.visibility = View.GONE
+            binding.btnToggleRunTxt.text = "중지"
+            binding.btnFinishRun.visibility = View.GONE
         } else if (!isTracking && curTimeInMillis > 0L) {
-            btnToggleRunTxt.text = "시작"
-            miCancelTracking.visibility = View.VISIBLE
-            btnFinishRun.visibility = View.VISIBLE
+            binding.btnToggleRunTxt.text = "시작"
+            binding.miCancelTracking.visibility = View.VISIBLE
+            binding.btnFinishRun.visibility = View.VISIBLE
         }
     }
 
@@ -187,8 +199,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
                 bounds.include(point)
             }
         }
-        val width = mapView.width
-        val height = mapView.height
+        val width = binding.mapView.width
+        val height = binding.mapView.height
         map?.animateCamera(
             CameraUpdateFactory.newLatLngBounds(
                 bounds.build(),
@@ -259,31 +271,31 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        binding.mapView.onResume()
     }
 
     override fun onStart() {
         super.onStart()
-        mapView.onStart()
+        binding.mapView.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView.onStop()
+        binding.mapView.onStop()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
+        binding.mapView.onPause()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView.onLowMemory()
+        binding.mapView.onLowMemory()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         val mapViewBundle = outState.getBundle(MAP_VIEW_BUNDLE_KEY)
-        mapView?.onSaveInstanceState(mapViewBundle)
+        binding.mapView?.onSaveInstanceState(mapViewBundle)
     }
 }

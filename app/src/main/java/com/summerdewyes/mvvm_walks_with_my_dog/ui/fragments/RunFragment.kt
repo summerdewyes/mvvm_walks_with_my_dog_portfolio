@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,13 +17,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.summerdewyes.mvvm_walks_with_my_dog.R
 import com.summerdewyes.mvvm_walks_with_my_dog.adpater.RunAdapter
+import com.summerdewyes.mvvm_walks_with_my_dog.databinding.FragmentRunBinding
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.REQUEST_CODE_LOCATION_PERMISSION
 import com.summerdewyes.mvvm_walks_with_my_dog.other.SortType
 import com.summerdewyes.mvvm_walks_with_my_dog.other.TrackingUtility
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_run.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
@@ -29,12 +31,24 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionCallbacks {
 
+    private var _binding: FragmentRunBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: MainViewModel by viewModels()
 
     private lateinit var runAdapter: RunAdapter
 
     @Inject
     lateinit var sharedPreferences: SharedPreferences
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentRunBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,14 +61,14 @@ class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionC
          * 필터
          */
         when(viewModel.sortType){
-            SortType.DATE -> spFilter.setSelection(0)
-            SortType.RUNNING_TIME -> spFilter.setSelection(1)
-            SortType.DISTANCE -> spFilter.setSelection(2)
-            SortType.AVG_SPEED -> spFilter.setSelection(3)
-            SortType.CALORIES_BURNED -> spFilter.setSelection(4)
+            SortType.DATE -> binding.spFilter.setSelection(0)
+            SortType.RUNNING_TIME -> binding.spFilter.setSelection(1)
+            SortType.DISTANCE -> binding.spFilter.setSelection(2)
+            SortType.AVG_SPEED -> binding.spFilter.setSelection(3)
+            SortType.CALORIES_BURNED -> binding.spFilter.setSelection(4)
         }
 
-        spFilter.onItemSelectedListener = object  : AdapterView.OnItemSelectedListener {
+        binding.spFilter.onItemSelectedListener = object  : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, view: View?, pos: Int, id: Long) {
                 when(pos){
                     0 -> viewModel.sortRuns(SortType.DATE)
@@ -75,7 +89,7 @@ class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionC
             runAdapter.submitList(it)
         })
 
-        fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_runFragment_to_trackingFragment)
         }
     }
@@ -97,7 +111,7 @@ class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionC
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.layoutPosition
-            val run = runAdapter.differ.currentList[position]
+            val run = runAdapter.currentList[position]
             viewModel.deleteRun(run)
             Snackbar.make(requireView(), "삭제했습니다 :)", Snackbar.LENGTH_LONG).apply {
                 setAction("Undo"){
@@ -112,7 +126,7 @@ class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionC
     /**
      * 리사이클러뷰
      */
-    private fun setupRecyclerView() = rvRuns.apply {
+    private fun setupRecyclerView() = binding.rvRuns.apply {
         runAdapter = RunAdapter()
         adapter = runAdapter
         layoutManager = LinearLayoutManager(requireContext())
@@ -123,7 +137,7 @@ class RunFragment : Fragment(R.layout.fragment_run), EasyPermissions.PermissionC
 
     private fun loadNameFromSharedPref() {
         val name = sharedPreferences.getString(Constants.KEY_NAME, "")
-        tvLetsGo.text = "안녕! ${name}!"
+        binding.tvLetsGo.text = "안녕! ${name}!"
     }
 
     /**

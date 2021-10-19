@@ -2,29 +2,42 @@ package com.summerdewyes.mvvm_walks_with_my_dog.ui.fragments
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.summerdewyes.mvvm_walks_with_my_dog.R
+import com.summerdewyes.mvvm_walks_with_my_dog.databinding.FragmentSettingsBinding
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.KEY_NAME
 import com.summerdewyes.mvvm_walks_with_my_dog.other.Constants.KEY_WEIGHT
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_settings.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
+
     @Inject
     lateinit var sharedPreferences: SharedPreferences
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         loadFieldsFromSharedPref()
 
-        btnApplyChanges.setOnClickListener {
+        binding.btnApplyChanges.setOnClickListener {
             val success = applyChangesToSharedPref()
             if (success) {
                 Snackbar.make(view, "수정되었습니다 :)", Snackbar.LENGTH_LONG).show()
@@ -36,14 +49,14 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private fun loadFieldsFromSharedPref() {
         val name = sharedPreferences.getString(KEY_NAME, "")
         val weight = sharedPreferences.getFloat(KEY_WEIGHT, 8f)
-        etName.setText(name)
-        etWeight.setText(weight.toString())
+        binding.etName.setText(name)
+        binding.etWeight.setText(weight.toString())
 
     }
 
     private fun applyChangesToSharedPref() : Boolean {
-        val nameText = etName.text.toString()
-        val weightText = etWeight.text.toString()
+        val nameText = binding.etName.text.toString()
+        val weightText = binding.etWeight.text.toString()
         if (nameText.isEmpty() || weightText.isEmpty()){
             return false
         }
