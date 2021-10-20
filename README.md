@@ -1,13 +1,15 @@
 어야가자 (Walk-With-My-Dog)
 ==
+[MVVM Running Tracker App (Dagger-Hilt)](https://www.youtube.com/playlist?list=PLQkwcJG4YTCQ6emtoqSZS2FVwZR9FT3BV) 튜토리얼을 공부하여,
 [기존 어야가자](https://github.com/summerdewyes/walks-with-my-dog-portfolio)에 MVVM 패턴을 적용했습니다.   
 반려견과 함께한 산책을 기록합니다.
-   
+
    
 ## 사용 라이브러리
 
 * Google Map API
 * Jetpack
+* Room
 * Coroutines
 * Dagger
 * Retrofit2
@@ -28,7 +30,7 @@
 
 ![기록](https://user-images.githubusercontent.com/74890579/132471776-91732edf-ba07-4b1f-afb6-b7adacab1311.gif)
 
-
+   
 
 
 
