@@ -7,14 +7,15 @@
    
 ## 사용 라이브러리
 
+* CardView
+* Coroutines
+* Dagger Hilt
+* Glide
 * Google Map API
 * Jetpack
-* Room
-* Coroutines
-* Dagger
 * Retrofit2
-* Glide
-* CardView
+* Room
+
    
    
 ## 실행 결과
