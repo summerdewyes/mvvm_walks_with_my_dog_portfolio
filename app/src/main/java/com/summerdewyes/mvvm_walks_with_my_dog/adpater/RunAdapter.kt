@@ -36,6 +36,9 @@ class RunAdapter : ListAdapter<Run, RunAdapter.RunViewHolder>(diffCallback) {
             val caloriesBurned = "${run.caloriesBurned}kcal"
             binding.tvCalories.text = caloriesBurned
 
+            val journal = run.journal
+            binding.tvJournal.text = journal
+
         }
     }
 

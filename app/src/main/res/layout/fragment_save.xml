@@ -8,7 +8,7 @@
     android:paddingBottom="@dimen/margin_default_mul">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/tvSuccess"
+        android:id="@+id/ivSuccess"
         android:layout_width="18sp"
         android:layout_height="18sp"
         android:src="@drawable/ic_check"
@@ -18,14 +18,14 @@
         app:layout_constraintBottom_toTopOf="@+id/ivRunImage"/>
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/tvDelete"
+        android:id="@+id/ivDelete"
         android:layout_width="18sp"
         android:layout_height="18sp"
         android:src="@drawable/ic_garbage"
         android:layout_margin="@dimen/margin_default"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/ivRunImage"
-        app:layout_constraintRight_toLeftOf="@+id/tvSuccess"/>
+        app:layout_constraintRight_toLeftOf="@+id/ivSuccess"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilJournal"
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="메모"
+            android:hint="어땠나요?"
             android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>

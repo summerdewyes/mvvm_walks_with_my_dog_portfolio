@@ -3,6 +3,7 @@ package com.summerdewyes.mvvm_walks_with_my_dog.db
 import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 /**
  * 데이터베이스 테이블 생성
@@ -15,7 +16,8 @@ data class Run(
     var distanceInMeters: Int = 0,
     var timeInMillis: Long = 0L,
     var caloriesBurned: Int = 0,
-) {
+    var journal: String?,
+) : Serializable {
     /**
      * 기본키 (id) 자동 생성
      */

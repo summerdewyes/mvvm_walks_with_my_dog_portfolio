@@ -2,6 +2,7 @@ package com.summerdewyes.mvvm_walks_with_my_dog.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,6 +27,7 @@ import com.summerdewyes.mvvm_walks_with_my_dog.services.Polyline
 import com.summerdewyes.mvvm_walks_with_my_dog.services.TrackingService
 import com.summerdewyes.mvvm_walks_with_my_dog.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.round
@@ -65,16 +67,16 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         binding.mapView.onCreate(mapViewBundle)
 
         binding.btnFinishRun.setOnClickListener {
-            zoomToSeeWholeTrack()
-            showSaveTrackingDialog()
+            val success = zoomToSeeWholeTrack()
+            if (success){
+                endRunAndSaveToDb()
+            } else {
+                Snackbar.make(requireView(), "종료 버튼을 한번 더 클릭해주세요 :)", Snackbar.LENGTH_SHORT).show()
+            }
         }
 
         binding.btnToggleRun.setOnClickListener {
             toggleRun()
-        }
-
-        binding.miCancelTracking.setOnClickListener {
-            showCancelTrackingDialog()
         }
 
         binding.mapView.getMapAsync { googleMap ->
@@ -84,7 +86,6 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
                 map.mapType = GoogleMap.MAP_TYPE_TERRAIN
             }
             addAllPolylines()
-
         }
 
         subscribeToObservers()
@@ -113,7 +114,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
      */
     private fun toggleRun() {
         if (isTracking) {
-            binding.miCancelTracking.visibility = View.VISIBLE
+            //binding.miCancelTracking.visibility = View.VISIBLE
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
@@ -126,7 +127,6 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     private fun stopRun() {
         binding.tvTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
-        findNavController().navigate(R.id.action_trackingFragment_to_runFragment)
     }
 
     /**
@@ -139,7 +139,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             binding.btnFinishRun.visibility = View.GONE
         } else if (!isTracking && curTimeInMillis > 0L) {
             binding.btnToggleRunTxt.text = "시작"
-            binding.miCancelTracking.visibility = View.VISIBLE
+            //binding.miCancelTracking.visibility = View.VISIBLE
             binding.btnFinishRun.visibility = View.VISIBLE
         }
     }
@@ -189,10 +189,12 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }
     }
 
+    var seeWholeTrack = false
+
     /**
      * 경로의 모든 부분을 보여주도록 합니다.
      */
-    private fun zoomToSeeWholeTrack() {
+    private fun zoomToSeeWholeTrack(): Boolean {
         val bounds = LatLngBounds.Builder()
         for (polyline in pathPoints) {
             for (point in polyline) {
@@ -201,14 +203,22 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         }
         val width = binding.mapView.width
         val height = binding.mapView.height
-        map?.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(
-                bounds.build(),
-                width,
-                height,
-                (height * 0.05f).toInt()
+
+        return if (seeWholeTrack){
+            true
+        }else{
+            map?.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(
+                    bounds.build(),
+                    width,
+                    height,
+                    (height * 0.05f).toInt()
+                )
             )
-        )
+            seeWholeTrack = true
+            false
+        }
+
     }
 
     /**
@@ -225,31 +235,29 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             val dataTimestamp = Calendar.getInstance().timeInMillis
             val caloriesBurned = ((distanceInMeters / 1000f) * weight).toInt()
 
+            val run = Run(
+                bmp,
+                dataTimestamp,
+                avgSpeed,
+                distanceInMeters,
+                curTimeInMillis,
+                caloriesBurned,
+                null
+            )
 
-            val run =
-                Run(bmp, dataTimestamp, avgSpeed, distanceInMeters, curTimeInMillis, caloriesBurned)
-            viewModel.insertRun(run)
+            val bundle = Bundle().apply {
+                putSerializable("runItem", run)
+            }
 
+            findNavController().navigate(
+                R.id.action_trackingFragment_to_saveFragment,
+                bundle
+            )
 
-            Snackbar.make(
-                requireActivity().findViewById(R.id.rootView),
-                "저장했습니다 :)",
-                Snackbar.LENGTH_LONG
-            ).show()
             stopRun()
         }
     }
 
-    /**
-     * 산책 저장 다이어로그
-     */
-    private fun showSaveTrackingDialog() {
-        SaveTrackingDialog().apply {
-            setYesListener {
-                endRunAndSaveToDb()
-            }
-        }.show(parentFragmentManager, CANCEL_TRACKING_DIALOG_TAG)
-    }
 
     /**
      * 산책 중지 다이어로그
