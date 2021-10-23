@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * nav_graph.xml 안 action_global_trackingFragment가 launchSingleTop으로 설정되어 있기 때문에 호출된 함수입니다.
+     * launchMode가 singleTask라 생성된 함수
      * 인텐트가 다시 발생하더라도 객체가 다시 생성되지 않고 객체의 데이터만 변경됩니다.
      */
    override fun onNewIntent(intent: Intent?) {

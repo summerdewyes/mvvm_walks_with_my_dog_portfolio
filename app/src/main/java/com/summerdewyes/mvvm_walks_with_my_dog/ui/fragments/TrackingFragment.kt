@@ -224,9 +224,13 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
                 round((distanceInMeters / 1000f) / (curTimeInMillis / 1000f / 60 / 60) * 10) / 10f
             val dataTimestamp = Calendar.getInstance().timeInMillis
             val caloriesBurned = ((distanceInMeters / 1000f) * weight).toInt()
+
+
             val run =
                 Run(bmp, dataTimestamp, avgSpeed, distanceInMeters, curTimeInMillis, caloriesBurned)
             viewModel.insertRun(run)
+
+
             Snackbar.make(
                 requireActivity().findViewById(R.id.rootView),
                 "저장했습니다 :)",
