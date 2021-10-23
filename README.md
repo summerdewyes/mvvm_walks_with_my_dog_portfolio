@@ -23,13 +23,14 @@
 ### - 산책
 산책의 이동 거리, 이동 시간, 동선 등을 기록합니다.
 
-![산책](https://user-images.githubusercontent.com/74890579/132471565-d2f71eac-984b-4c19-afc4-340f750884ee.gif)
+![산책](https://user-images.githubusercontent.com/74890579/138559332-38e56c00-1a5f-4f2b-8e7c-516a9f1bf98c.gif)
+
 
 
 ### - 기록
 산책 기록들을 확인할 수 있습니다.
 
-![기록](https://user-images.githubusercontent.com/74890579/132471776-91732edf-ba07-4b1f-afb6-b7adacab1311.gif)
+![기록](https://user-images.githubusercontent.com/74890579/138559333-a5962312-a2c1-4734-b1c7-e10054e1bfef.gif)
 
    
 
