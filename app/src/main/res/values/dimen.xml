@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="bottom_height">56sp</dimen>
+    <dimen name="default_height">56sp</dimen>
 
     <!--Margin-->
     <dimen name="margin_default_div">8sp</dimen>

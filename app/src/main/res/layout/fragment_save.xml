@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.fragments.SaveFragment"
+    android:paddingBottom="@dimen/margin_default_mul">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/tvSuccess"
+        android:layout_width="18sp"
+        android:layout_height="18sp"
+        android:src="@drawable/ic_check"
+        android:layout_margin="@dimen/margin_default"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ivRunImage"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/tvDelete"
+        android:layout_width="18sp"
+        android:layout_height="18sp"
+        android:src="@drawable/ic_garbage"
+        android:layout_margin="@dimen/margin_default"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ivRunImage"
+        app:layout_constraintRight_toLeftOf="@+id/tvSuccess"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilJournal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        app:layout_constraintEnd_toEndOf="@id/tvCalories"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/tvDate"
+        app:layout_constraintTop_toBottomOf="@+id/tvDate">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etJournal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="메모"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivRunImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_height"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="DATE"
+        app:layout_constraintEnd_toStartOf="@+id/tvTime"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivRunImage" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="TIME"
+        app:layout_constraintEnd_toStartOf="@+id/tvDistance"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tvDate"
+        app:layout_constraintTop_toBottomOf="@+id/ivRunImage" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="DISTANCE"
+        app:layout_constraintEnd_toStartOf="@+id/tvAvgSpeed"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tvTime"
+        app:layout_constraintTop_toBottomOf="@+id/ivRunImage" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvAvgSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="AVGSPEED"
+        app:layout_constraintEnd_toStartOf="@+id/tvCalories"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tvDistance"
+        app:layout_constraintTop_toBottomOf="@+id/ivRunImage" />
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvCalories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="CALORIES"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tvAvgSpeed"
+        app:layout_constraintTop_toBottomOf="@+id/ivRunImage" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
