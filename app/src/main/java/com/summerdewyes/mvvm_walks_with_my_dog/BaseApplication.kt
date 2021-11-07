@@ -5,6 +5,10 @@ import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
 /**
+ * new branch!
+ */
+
+/**
  * @HiltAndroidApp에 의해서 SingletonComponent가 생성된다.
  * 앱이 살아있는 동안 Dependency를 제공하는 역할.
  */
