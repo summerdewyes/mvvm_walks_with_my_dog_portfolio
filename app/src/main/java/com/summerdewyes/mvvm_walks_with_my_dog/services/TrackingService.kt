@@ -50,8 +50,7 @@ typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
 
 @AndroidEntryPoint
-class TrackingService :
-    LifecycleService() { // LifecycleService는 LifecycleOwner를 구현한 Service의 확장 클래스 입니다.
+class TrackingService : LifecycleService() { // LifecycleService는 LifecycleOwner를 구현한 Service의 확장 클래스 입니다.
 
     var isFirstRun = true
     var serviceKilled = false
